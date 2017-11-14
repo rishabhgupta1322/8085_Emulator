@@ -1,107 +1,144 @@
-class ExecPhase{    
+#include <bits/stdc++.h>
+using namespace std;
+
+class Emulator{
+    private:
+        map<string,string> Memory;
+        string start,pc;
+        bool flag[8];
+        string registers[7];
+        vector<string> sequence;
+        
     public:
-        //When program is called without debugger
-    	void ExecNormal(string pc,map<string,string> &Memory,vector<string> &sequence,bool flag[],string reg[]){
-            int size=sequence.size();
-            for(int i=0;i<size;i++)
-		pc=Exec(Memory[sequence[i]],reg,flag,Memory,pc);
-	}
+        Emulator(){
+		    for(int i = 0;i<7;i++)
+			registers[i] = "NULL";
+		    for(int i=0;i<8;i++)
+			flag[i] = false;
+		    start = "";
+		    pc = "";
+		}    
 	
-	//When program is called with debugger
-	void ExecDebugger(string pc,map<string,string>&Memory,vector<string>&sequence,bool flag[],string reg[]){
-	    string option;
-	    set<int> breakpoints;
-	    set<int>::iterator it;
-	    cout << "Enter Options :- " << endl;
-	    while(true){
-		cout << "->> ";
-		//Reading option from user for debugger
-		cin >> option;
-		if(option == "help"){
-		    char line;
-		    ifstream write("help.txt");
-		    //Print the content of help file
-	       	    while(!write.eof()){
-			write.get(line);
-			cout << line;
-	            }
-		    write.close();
-		 }else if(option == "PC"){	
-		     //Print the content of program counter
-		     cout<<"Program counter -->> "<<pc<<"\n";
-		 }else if(option=="p" || option=="print"){
-		     string valHolder;
-		     cin.ignore();
-		     //Read reg whose value is need to print
-		     cin >> valHolder;
-		     int l = valHolder.length();
-		     if(l==1){
-		         //print data of given reg(valHolder) if valid reg is given
-		         if(valregs(valHolder))
-			     cout << reg[regNumber(valHolder)] << endl;
-			 else
-			     cout << "Error: " << valHolder << endl;
-			     cout << " You have entered invalid reg name" << endl;
-			     cout << "Type 'help' for more information" << endl;
-		     }else if(l==4){
-		         //print data at given memory location
-			 if(valAddress(valHolder))
-			     cout<<Memory[valHolder]<<"\n";
-			 else
-			     cout << "Error: " << valHolder << endl;
-			     cout << "You have entered invalid address" << endl;
-			     cout << "Type 'help' for more information" << endl;
-		     }else
-			 cout << "Error: " << valHolder << endl;
-			 cout << "Type 'help' for more information" << endl;
-		 }else if(option=="q"||option=="quit"){
-		     //terminate the program
-		     break;
-		 }else if(option=="break"||option=="b"){
-		     //Add breakpoint to entered line number
-		     int lineNumber;
-		     cin>>lineNumber;
-		     breakpoints.insert(lineNumber);
-		 }else if(option=="s"||option=="step"){
-		     //execute program step by step(one step at a time)
-		     if(pc!="")
-		         pc = Exec(Memory[pc],reg,flag,Memory,pc);
-		 }else if(option=="r"||option=="run"){
-		     //run the entered program
-		     if(pc != ""){
-		         if(breakpoints.empty()){
-		             while(true){
-		                 //Run program untill end of program i.e HLT
-		                 if(Memory[pc] == "HLT"){
-		                     pc = "";
-		                     break;
-		                 }
-		                 else
-		                     pc = Exec(Memory[pc],reg,flag,Memory,pc);
-		             }
-			 }else{
-                             it = breakpoints.begin();
-			     int var = *it;
-			     while(pc!=sequence[var]){
-			         pc = Exec(Memory[pc],reg,flag,Memory,pc);
-			     }
-		             breakpoints.erase(it);
-			 }
-		     }else{
-			 char choice='\0';
-			 cout<<"You have reached till the end of Exec. Press to continue[Y/n] ";
-			 cin>>choice;
-			 if(choice == 'Y' || choice == 'y'){
-			     continue;
-			 }else if(choice == 'N' || choice == 'n')
-			     exit(0);
-			 else
-			     cout<<"Please input correct option\n";
-			 continue;
-	            }
-		}else{
-		    cout<<"Invalid choice has been entered. Type 'help' for more information about debugger\n";
+		void input(){
+		    cout << "Enter starting address in hexadecimal: ";
+		    cin >> start;
+		    valid obj;
+		    obj.checkAddress(start);
+		    pc=start;
 		}
-	    }
-	}
+		
+		//Read data at running time without debugger
+        void ReadingDataRuntime(){
+            valid obj;
+            Execution exe;
+            cin.ignore();
+            string line;
+            cout << endl << endl << "Start typing your code from here:" << endl;
+		    while(1){
+		        cout << ">>> " << pc << " ";
+		        getline(cin,line);
+		        if(obj.validFile(line)){
+		      	    Memory[pc] = line;
+			    pc = exe.updatedAddress(pc,Memory);
+			    if(line == "HLT")
+		                break;
+			    sequence.push_back(pc);
+		        }else{
+	                cout << "Error: " << line << endl;
+		            cout << "You have entered an incorrect statement" << endl;
+		            cout << "The program will terminate" << endl;
+		            exit(0);
+		        }
+		    }
+        }
+	        
+	        //To read data at run time with debugger
+        void DataInputWithoutFile(){
+            valid obj;
+            Execution exe;
+            cout<<"\nStart typing your code from here:\n";
+            while(1){
+		        cout << ">>> " << pc << " ";
+		        string line;
+		        cin.ignore();
+		        getline(cin,line);
+		        if(obj.validFile(line)){
+		            Memory[pc]=line;
+			    pc=exe.updatedAddress(pc,Memory);
+			    if(line == "HLT")
+		            break;
+			    sequence.push_back(pc);
+		        }else{
+				    cout << "Error: " << line << endl;
+				    cout << "You have entered an incorrect statement" << endl;
+				    cout << "The program will terminate" << endl;
+				    exit(0);
+		        }
+		    }
+        }
+	        
+	        //To read data from given input file
+        void dataInputFromFile(char* filename){
+            ifstream input;
+            Execution exe;
+            input.open(filename);
+            if(input.fail() == true){	
+	        cout << "You have entered an invalid filename." << endl;
+	        cout << "The prorgam will terminate\n";
+	        exit(0);
+            }
+            string line;
+            valid obj;
+            while(1){
+                getline(input,line);
+                if(obj.validFile(line)){
+                    Memory[pc]=line;
+                    pc=exe.updatedAddress(pc,Memory);
+                    if(line=="HLT")
+			        	break;
+	                sequence.push_back(pc);
+		        }else{		
+	                cout << "Error: " << line << endl;
+				    cout << "You have entered an incorrect statement" << endl;
+				    cout << "The program will terminate" << endl;
+				    exit(0);
+		        }
+            }
+        }
+		
+		void noInput(){
+		    input();
+		    ExecPhase obj;
+            //Reading data at run time
+            ReadingDataRuntime();
+            //Execution of program without debugger
+		    obj.ExecNormal(start,Memory,sequence,flag,registers);
+		}
+		
+		void ProgWithDebugger(){
+		    input();
+		    ExecPhase obj;
+            //Reading data at run time
+            DataInputWithoutFile();
+            //Execution of program with debugger
+            obj.ExecDebugger(start,Memory,sequence,flag,registers);
+		}
+		
+		void ProgWithInputFile(char* filename){
+		    input();
+		    ExecPhase obj;
+            //Reading data from file
+            dataInputFromFile(filename);
+            //Execution of program without debugger
+            obj.ExecNormal(start,Memory,sequence,flag,registers);
+		}
+		
+		void ProgWithInputFileAndDebugger(char* filename){
+		    input();
+		    ExecPhase obj;
+            //Reading data at running time with debugger
+            dataInputFromFile(filename);
+            //Execution of program with debugger
+            obj.ExecDebugger(start,Memory,sequence,flag,registers);
+		}
 };
