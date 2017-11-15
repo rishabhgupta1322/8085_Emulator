@@ -39,10 +39,10 @@ class Emulator{
 		        getline(cin,line);
 		        if(obj.validFile(line)){
 		      	    Memory[pc] = line;
-			    pc = exe.updatedAddress(pc,Memory);
-			    if(line == "HLT")
-		                break;
-			    sequence.push_back(pc);
+				    pc = exe.updatedAddress(pc,Memory);
+				    if(line == "HLT")
+			                break;
+				    sequence.push_back(pc);
 		        }else{
 	                cout << "Error: " << line << endl;
 		            cout << "You have entered an incorrect statement" << endl;
@@ -52,40 +52,15 @@ class Emulator{
 		    }
         }
 	        
-	        //To read data at run time with debugger
-        void DataInputWithoutFile(){
-            valid obj;
-            Execution exe;
-            cout<<"\nStart typing your code from here:\n";
-            while(1){
-		        cout << ">>> " << pc << " ";
-		        string line;
-		        cin.ignore();
-		        getline(cin,line);
-		        if(obj.validFile(line)){
-		            Memory[pc]=line;
-			    pc=exe.updatedAddress(pc,Memory);
-			    if(line == "HLT")
-		            break;
-			    sequence.push_back(pc);
-		        }else{
-				    cout << "Error: " << line << endl;
-				    cout << "You have entered an incorrect statement" << endl;
-				    cout << "The program will terminate" << endl;
-				    exit(0);
-		        }
-		    }
-        }
-	        
-	        //To read data from given input file
+        //To read data from given input file
         void dataInputFromFile(char* filename){
             ifstream input;
             Execution exe;
             input.open(filename);
             if(input.fail() == true){	
-	        cout << "You have entered an invalid filename." << endl;
-	        cout << "The prorgam will terminate\n";
-	        exit(0);
+		        cout << "You have entered an invalid filename." << endl;
+		        cout << "The prorgam will terminate\n";
+		        exit(0);
             }
             string line;
             valid obj;
@@ -105,6 +80,10 @@ class Emulator{
 		        }
             }
         }
+
+        void output(){
+        	
+        }
 		
 		void noInput(){
 		    input();
@@ -119,7 +98,7 @@ class Emulator{
 		    input();
 		    ExecPhase obj;
             //Reading data at run time
-            DataInputWithoutFile();
+            ReadingDataRuntime();
             //Execution of program with debugger
             obj.ExecDebugger(start,Memory,sequence,flag,registers);
 		}
