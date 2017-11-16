@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+map<string,string> cmdoutput;
+vector<string> cmdaddress;
+
 class valid{
     public :
 
@@ -152,9 +155,9 @@ class valid{
         }
 
         int operationSize(string str){
-            string one[] = {"HLT","MOV","STAX","XCHG","ADD","SUB","INR","DCR","INX","DCX","DAD","CMA","CMP"};
+            string one[] = {"HLT","MOV","XCHG","ADD","SUB","INR","DCR","INX","DCX","DAD","CMA","CMP"};
             string two[] = {"MVI","ADI","SUI"};
-            string three[] = {"LXI","LDA","STA","SHLD","LHLD","JMP","JC","JNZ","JNC","JZ","SET"};
+            string three[] = {"LXI","LDA","STA","SHLD","LHLD","JMP","JC","JNZ","JNC","JZ","SET","STAX"};
             const char *ch = str.c_str();
             char *var = (char*)ch;
             const char *delimiter = " ,";

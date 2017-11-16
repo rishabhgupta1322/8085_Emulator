@@ -65,6 +65,7 @@ class Execution{
 		}
 
         string Exec(string cmd, string regs[], bool flag[], map<string,string>&memory,string programCounter){
+            command cmdobj;
             vector<string> commandPart;
             //string command = memory[programCounter];
             string inst; 
@@ -74,7 +75,7 @@ class Execution{
             char *temporary = (char*)partition;
             char *part = strtok(temporary,delimiter);
             while(part!=NULL){
-		        inst = *part;
+		        inst = part;
 		        commandPart.push_back(inst);
 		        part = strtok(NULL,delimiter);
             }
@@ -98,6 +99,9 @@ class Execution{
             }else if(commandPart[0] == "STA"){
 		        obj.STA(commandPart[1],regs,flag,memory);
 		        commandSize = val.operationSize(commandPart[0]);
+		        cmdoutput[commandPart[1]]=regs[0];
+		        cmdaddress.push_back(commandPart[1]);
+		        cmdoutput[commandPart[1]]=regs[0];
 		        return nextAddress(programCounter,commandSize);
             }else if(commandPart[0] == "LHLD"){
 		        obj.LHLD(commandPart[1],regs,flag,memory);
@@ -106,10 +110,30 @@ class Execution{
             }else if(commandPart[0] == "SHLD"){
                 obj.SHLD(commandPart[1],regs,flag,memory);
 		        commandSize = val.operationSize(commandPart[0]);
+		        cmdaddress.push_back(commandPart[1]);
+		        cmdaddress.push_back(cmdobj.increaseAddress(commandPart[1]));
+		        cmdoutput[commandPart[1]]=regs[5];
+		        cmdoutput[cmdobj.increaseAddress(commandPart[1])]=regs[6];
 		        return nextAddress(programCounter,commandSize);
             }else if(commandPart[0] == "STAX"){
 		        obj.STAX(commandPart[1],regs,flag,memory);
 		        commandSize = val.operationSize(commandPart[0]);
+		        if(commandPart[1]=="B"){
+		        	cmdaddress.push_back(regs[1]+regs[2]);
+		        	cmdaddress.push_back(cmdobj.increaseAddress(regs[1]+regs[2]));
+		        	cmdoutput[regs[1]+regs[2]]=regs[0];
+		        	cmdoutput[cmdobj.increaseAddress(regs[1]+regs[2])]=regs[0];
+		        }else if(commandPart[1]=="D"){
+		        	cmdaddress.push_back(regs[3]+regs[4]);
+		        	cmdaddress.push_back(cmdobj.increaseAddress(regs[3]+regs[4]));
+		        	cmdoutput[regs[3]+regs[4]]=regs[0];
+		        	cmdoutput[cmdobj.increaseAddress(regs[3]+regs[4])]=regs[0];
+		        }else{
+		        	cmdaddress.push_back(regs[5]+regs[6]);
+		        	cmdaddress.push_back(cmdobj.increaseAddress(regs[5]+regs[6]));
+		        	cmdoutput[regs[5]+regs[6]]=regs[0];
+		        	cmdoutput[cmdobj.increaseAddress(regs[5]+regs[6])]=regs[0];
+		        }
 		        return nextAddress(programCounter,commandSize);
             }else if(commandPart[0] == "XCHG"){
 	        	obj.XCHG(regs,flag);
@@ -172,6 +196,8 @@ class Execution{
             }else if(commandPart[0] == "SET"){
 		        obj.SET(commandPart[1],commandPart[2],memory);
 		        commandSize = val.operationSize(commandPart[0]);
+		        cmdaddress.push_back(commandPart[1]);
+		        cmdoutput[commandPart[1]]=commandPart[2];
 		        return nextAddress(programCounter,commandSize);
             }
             return "";

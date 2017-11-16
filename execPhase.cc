@@ -3,14 +3,17 @@ using namespace std;
 
 class ExecPhase{    
     public:
+		
         //When program is called without debugger
     	void ExecNormal(string pc,map<string,string> &Memory,vector<string> &sequence,bool flag[],string reg[]){
     		Execution exe;
             int size=sequence.size();
-            for(int i=0;i<size;i++)
+            for(int i=0;i<size;i++){
 				pc=exe.Exec(Memory[sequence[i]],reg,flag,Memory,pc);
+            }
 		}
 	
+
 	//When program is called with debugger
 	void ExecDebugger(string pc,map<string,string>&Memory,vector<string>&sequence,bool flag[],string reg[]){
 		valid val;

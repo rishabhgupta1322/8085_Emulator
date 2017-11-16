@@ -8,6 +8,7 @@ class Emulator{
         bool flag[8];
         string registers[7];
         vector<string> sequence;
+		
         
     public:
         Emulator(){
@@ -22,6 +23,8 @@ class Emulator{
 		void input(){
 		    cout << "Enter starting address in hexadecimal: ";
 		    cin >> start;
+		    cin.clear();
+		    cin.ignore();
 		    valid obj;
 		    obj.checkAddress(start);
 		    pc=start;
@@ -29,11 +32,12 @@ class Emulator{
 		
 		//Read data at running time without debugger
         void ReadingDataRuntime(){
+        	int c=1;
             valid obj;
             Execution exe;
-            cin.ignore();
             string line;
-            cout << endl << endl << "Start typing your code from here:" << endl;
+            cout << "Press enter to type your program";
+            cout << endl << endl << "Start typing your code from here:\n";
 		    while(1){
 		        cout << ">>> " << pc << " ";
 		        getline(cin,line);
@@ -81,8 +85,42 @@ class Emulator{
             }
         }
 
+        void registerOutput(){
+        	char c='A',T;
+        	cout << "\nRegisters Value: \n";
+        	for(int i=0;i<5;i++){
+        		T=c+i;
+        		cout << T << " ->> " <<registers[i] << endl;
+        	}
+        	cout << "H ->> " <<registers[5] << endl;
+        	cout << "L ->> " <<registers[6] << endl;
+        }
+
+        void flagOutput(){
+        	cout << "\nFlag Register values: \n";
+        	cout << "SF ->> " << flag[7] << endl;
+        	cout << "ZF ->> " << flag[6] << endl;
+        	cout << "ACF ->> " << flag[4] << endl;
+        	cout << "PF ->> " << flag[2] << endl;
+        	cout << "CF ->> " << flag[0] << endl;
+        }
+
+        void commandOutput(){
+        	cout << "Memory Address: " << endl;
+        	sort(cmdaddress.begin(),cmdaddress.end());
+        	for(int i=0;i<cmdaddress.size()-1;){
+        		if(cmdaddress[i]==cmdaddress[i+1])
+        			cmdaddress.erase(cmdaddress.begin()+i);
+        	}
+        	for(int i=0;i<cmdaddress.size();i++){
+        		cout << cmdaddress[i] << " ->> " << cmdoutput[cmdaddress[i]] << endl;
+        	}
+        }
+
         void output(){
-        	
+        	registerOutput();
+        	flagOutput();
+        	commandOutput();
         }
 		
 		void noInput(){
@@ -92,6 +130,7 @@ class Emulator{
             ReadingDataRuntime();
             //Execution of program without debugger
 		    obj.ExecNormal(start,Memory,sequence,flag,registers);
+		    output();
 		}
 		
 		void ProgWithDebugger(){
@@ -101,6 +140,7 @@ class Emulator{
             ReadingDataRuntime();
             //Execution of program with debugger
             obj.ExecDebugger(start,Memory,sequence,flag,registers);
+            output();
 		}
 		
 		void ProgWithInputFile(char* filename){
@@ -110,6 +150,7 @@ class Emulator{
             dataInputFromFile(filename);
             //Execution of program without debugger
             obj.ExecNormal(start,Memory,sequence,flag,registers);
+            output();
 		}
 		
 		void ProgWithInputFileAndDebugger(char* filename){
@@ -119,5 +160,6 @@ class Emulator{
             dataInputFromFile(filename);
             //Execution of program with debugger
             obj.ExecDebugger(start,Memory,sequence,flag,registers);
+            output();
 		}
 };
