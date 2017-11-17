@@ -111,6 +111,8 @@ class Emulator{
         	for(int i=0;i<cmdaddress.size()-1;){
         		if(cmdaddress[i]==cmdaddress[i+1])
         			cmdaddress.erase(cmdaddress.begin()+i);
+        		else 
+        			i++;
         	}
         	for(int i=0;i<cmdaddress.size();i++){
         		cout << cmdaddress[i] << " ->> " << cmdoutput[cmdaddress[i]] << endl;
