@@ -21,7 +21,7 @@ Getting Started :-
 Prerequisites :
 
       •	A 32-bit or 64-bit operating system(like Ubuntu, Windows or mac.......)
-      •	C++ compiler like g++ and using c++11 version of g++ compiler for stoi function.
+      •	C++ compiler like g++ and using c++11 version or higher.
 
 Running :
 
